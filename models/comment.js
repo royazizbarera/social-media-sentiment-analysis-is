@@ -1,6 +1,12 @@
 // comment.js
 class Comment {
-  constructor(commentId, commentText, commentDate, sentimentValue, user) {
+  constructor(
+    commentId,
+    commentText,
+    commentDate,
+    user,
+    sentimentValue = undefined // 1,0,-1
+  ) {
     this.commentId = commentId;
     this.commentText = commentText;
     this.commentDate = commentDate;
@@ -15,4 +21,3 @@ class Comment {
 }
 
 module.exports = Comment;
-
