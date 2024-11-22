@@ -21,7 +21,7 @@ post.addComment(comment2);
 
 // Lihat komentar pada post
 console.log('Post Comments:');
-console.log(post);
+console.log(JSON.stringify(post));
 
 // Buat beberapa user
 const user3 = new User(3, 'john_doe', 'Tokopedia');
@@ -39,4 +39,4 @@ product.addReview(review2);
 
 // Lihat semua ulasan untuk produk
 console.log('Product Reviews:');
-console.log(product);
+console.log(JSON.stringify(product));
