@@ -1,9 +1,10 @@
 // post.js
 class Post {
-  constructor(postId, postTitle, linkPost, likes = 0, views = 0, totalComments = 0) {
+  constructor(postId, postTitle, linkPost, linkPreviewPost = null, likes = 0, views = 0, totalComments = 0) {
     this.postId = postId;
     this.postTitle = postTitle;
     this.linkPost = linkPost;
+    this.linkPreviewPost = linkPreviewPost;
     this.likes = likes;
     this.views = views;
     this.totalComments = totalComments;
