@@ -4,50 +4,63 @@ const fs = require("fs");
 
 (async () => {
   const tiktok = new HLPTiktokApi();
-  const videoLink =
-    "https://www.tiktok.com/@advan.indonesia/video/7412853218570423560"; // Ganti dengan URL video TikTok yang sesuai
+
+  // Baca file JSON hasil scraping sebelumnya
+  const inputFile = "results/advan.indonesia_tiktok_data.json"; // Ganti dengan nama file JSON Anda
+  const scrapedData = JSON.parse(fs.readFileSync(inputFile, "utf-8"));
+
   const count = 50; // Ambil lebih banyak komentar dalam sekali permintaan
-  let cursor = 0;
-  let hasMore = true;
-  const allComments = [];
-  const rawData = [];
+  let allComments = [];
+  let rawData = [];
 
   try {
-    while (hasMore) {
-      const data = await tiktok.getComment({
-        link: videoLink,
-        count: count,
-        cursor: cursor,
-      });
+    // Loop melalui setiap video link dari data JSON
+    for (const videoData of scrapedData) {
+      const videoLink = videoData.linkPost; // Ambil link dari JSON
+      console.log(`Mengambil komentar dari video: ${videoLink}`);
 
-      if (data && data.status_code === 0 && data.comments) {
-        // Simpan semua data mentah ke dalam rawData untuk Excel
-        rawData.push(...data.comments);
+      let cursor = 0;
+      let hasMore = true;
 
-        // Ambil data yang sudah diformat untuk penyimpanan JSON dan Excel
-        data.comments.forEach((comment) => {
-          allComments.push({
-            Text: comment.text,
-            Likes: comment.digg_count,
-            Created_At: new Date(comment.create_time * 1000).toLocaleString(),
-          });
+      while (hasMore) {
+        const data = await tiktok.getComment({
+          link: videoLink,
+          count: count,
+          cursor: cursor,
         });
 
-        cursor = data.cursor;
-        hasMore = data.has_more;
+        if (data && data.status_code === 0 && data.comments) {
+          // Simpan semua data mentah ke dalam rawData untuk Excel
+          rawData.push(...data.comments);
 
-        console.log(
-          "Jumlah komentar yang diambil sejauh ini:",
-          allComments.length
-        );
-      } else {
-        console.error("Terjadi kesalahan atau mencapai batas data:", data);
-        hasMore = false;
+          // Ambil data yang sudah diformat untuk penyimpanan JSON dan Excel
+          data.comments.forEach((comment) => {
+            allComments.push({
+              Video_Link: videoLink,
+              Text: comment.text,
+              Likes: comment.digg_count,
+              Created_At: new Date(comment.create_time * 1000).toLocaleString(),
+            });
+          });
+
+          cursor = data.cursor;
+          hasMore = data.has_more;
+
+          console.log(
+            `Jumlah komentar yang diambil untuk video ini: ${allComments.length}`
+          );
+        } else {
+          console.error(
+            `Terjadi kesalahan atau mencapai batas data untuk video: ${videoLink}`,
+            data
+          );
+          hasMore = false;
+        }
       }
     }
 
     // Simpan data mentah sebagai file JSON
-    fs.writeFileSync("comments_raw.json", JSON.stringify(rawData, null, 2));
+    fs.writeFileSync("results/comments_raw.json", JSON.stringify(rawData, null, 2));
     console.log("Data mentah berhasil disimpan dalam comments_raw.json");
 
     // Siapkan workbook untuk file Excel

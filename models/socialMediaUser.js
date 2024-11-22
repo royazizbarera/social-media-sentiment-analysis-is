@@ -1,5 +1,5 @@
 // user.js
-class User {
+class SocialMediaUser {
   constructor(userId, username, provider) {
     this.userId = userId;
     this.username = username;
@@ -7,4 +7,4 @@ class User {
   }
 }
 
-module.exports = User;
+module.exports = SocialMediaUser;

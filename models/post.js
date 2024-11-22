@@ -25,23 +25,35 @@ class Post {
 module.exports = Post;
 
 // e.gj
-const x = {
-  "postId": "7412853218570423560",
-  "postTitle": "📦✨ Unboxing Time! ✨📦 Unboxing Advan Tab A10! Desainnya minimalis tapi tetap stylish. Layarnya lebar banget, cocok buat nonton film atau main game. Baterainya juga awet, jadi bisa dipakai seharian. Yuk, simak video unboxingnya. #advan #advanindonesia #madetoinspire #AdvanTabA10 #ConnectEveryMoment #unboxing #Multitasking #bateraiawet #fyp #foryourpage",
-  "linkPost": "https://tiktok.com/video/7412853218570423560",
-  "likes": 100000,
-  "views": 1000000,
-  "totalComments": 1,
-  "comments": [
-    {
-      "commentId": "7413226728846213893",
-      "commentText": "no stylus pen?🥺",
-      "commentDate": "11/9/2024, 10.46.06",
-      "user": {
-        "userId": "6793597939333137410",
-        "username": "Singa G",
-        "provider": "Tiktok"
+const x = [
+  {
+    "postId": "7413224424876346630",
+    "postTitle": "Bosan dengan laptop yang itu-itu aja? Advan 360 Stylus Pro hadir dengan Processor Intel Core i3-1215U, desain elegan dan fitur-fitur canggih yang akan membantumu mengolah ide menjadi seni dan kreatifitas tanpa batas 🎨✨ #advan #advanindonesia #madetoinspire #EksklusifLaunching #360StylusPro #laptop2in1 #DrawYourVision #fyp #foryourpage",
+    "linkPost": "https://www.tiktok.com/@ferrzgntg/video/7413224424876346630",
+    "views": "0",
+    "likes": 3,
+    "totalComments": 7,
+    "comments": [
+      {
+        "commentId": "7429630736779477778",
+        "commentText": "min bikin hp dengan chipset Qualcomm Snapdragon 8 gen 1 dengan penyimpanan 6/128 8/256 12/1tb,dan batre 6500 mah fast charging 90 wat",
+        "commentDate": "25/10/2024, 15.41.55",
+        "user": {
+          "userId": "7407082908068774919",
+          "username": "ferz🦖",
+          "provider": "Tiktok"
+        }
+      },
+      {
+        "commentId": "7434096072661140279",
+        "commentText": "min buat hp advan gaming kelas mid dengan chipset dimensity 8300 ultimate dan game room yang banyak fitur, layar AMOLED bezel tipis, ada lampu RGB nya 😋",
+        "commentDate": "6/11/2024, 16.29.55",
+        "user": {
+          "userId": "7257526579449005061",
+          "username": "Ryouuuu",
+          "provider": "Tiktok"
+        }
       }
-    }
-  ],
-}
+    ]
+  },
+]

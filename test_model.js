@@ -1,59 +1,100 @@
+const fs = require("fs");
 const Post = require("./models/post");
 const Comment = require("./models/comment");
-const User = require("./models/user");
-const Review = require("./models/review");
-const Product = require("./models/product");
+const SocialMediaUser = require("./models/socialMediaUser");
+const removeEmojis = require("./tools/removeEmojis");
 
-// Buat user
-const user1 = new User(1, "john_doe", "Tiktok");
-const user2 = new User(2, "jane_doe", "Tiktok");
+// Fungsi untuk mengonversi timestamp ke format tanggal yang dapat dibaca
+const formatDate = (timestamp) => {
+  if (!timestamp) return "Unknown Date";
+  const date = new Date(timestamp * 1000); // Konversi dari detik ke milidetik
+  return date.toLocaleString("id-ID"); // Format sesuai lokal Indonesia
+};
 
-// Buat post
-const post = new Post(
-  201,
-  "Interesting Post Title",
-  "http://example.com/post/201"
-);
+// Baca file JSON
+fs.readFile("results/comments_raw.json", "utf-8", (err, data) => {
+  if (err) {
+    console.error("Error membaca file:", err);
+    return;
+  }
 
-// Tambahkan komentar ke post
-const comment1 = new Comment(
-  101,
-  "This is a sample comment.",
-  "2024-11-22T10:30:00Z",
-  user1
-);
-const comment2 = new Comment(
-  102,
-  "I found this post very helpful!",
-  "2024-11-22T11:00:00Z",
-  user2
-);
+  // Parse JSON
+  const commentsRaw = JSON.parse(data);
 
-post.addComment(comment1);
-post.addComment(comment2);
+  // Map untuk menyimpan post berdasarkan postId
+  const postMap = new Map();
 
-// Lihat komentar pada post
-console.log("Post Comments:");
-console.log(JSON.stringify(post));
+  // Map untuk menyimpan user berdasarkan userId (menghindari duplikasi)
+  const userMap = new Map();
 
-// Buat beberapa user
-const user3 = new User(3, "john_doe", "Tokopedia");
-const user4 = new User(4, "jane_doe", "Tokopedia");
+  // Proses data komentar
+  commentsRaw.forEach((rawComment) => {
+    const userId = rawComment.user?.uid;
+    const username = rawComment.user?.nickname;
 
-// Buat sebuah produk
-const product = new Product(
-  401,
-  "Sample Product",
-  "http://example.com/product/401"
-);
+    // Pastikan user valid
+    if (userId && username) {
+      // Buat user baru jika belum ada dalam map
+      if (!userMap.has(userId)) {
+        const user = new SocialMediaUser(userId, username, "Tiktok");
+        userMap.set(userId, user);
+      }
 
-// Tambahkan ulasan ke produk
-const review1 = new Review(301, "Great product!", user3);
-const review2 = new Review(302, "Could be improved.", user4);
+      // Tentukan postId
+      const postId = rawComment.aweme_id;
 
-product.addReview(review1);
-product.addReview(review2);
+      // Buat atau ambil post berdasarkan postId
+      if (!postMap.has(postId)) {
+        const post = new Post(
+          postId,
+          rawComment.share_info?.title || `Post Title for ID ${postId}`, // Judul post
+          `https://www.tiktok.com/@${rawComment.user?.unique_id}/video/${postId}`, // Link post
+          rawComment.sort_extra_score?.views || "0", // Views (jika ada)
+          rawComment.digg_count || "0", // Likes
+          rawComment.reply_comment_total || "0" // Total Comments
+        );
+        postMap.set(postId, post);
+      }
 
-// Lihat semua ulasan untuk produk
-console.log("Product Reviews:");
-console.log(JSON.stringify(product));
+      // Buat komentar
+      const comment = new Comment(
+        rawComment.cid, // commentId
+        rawComment.text, // commentText
+        formatDate(rawComment.create_time), // Konversi timestamp ke tanggal
+        userMap.get(userId) // User instance
+      );
+
+      // Tambahkan komentar ke post
+      postMap.get(postId).addComment(comment);
+    }
+  });
+
+  // Konversi hasil ke JSON
+  const postsArray = Array.from(postMap.values()).map((post) => {
+    return {
+      postId: post.postId,
+      postTitle: post.postTitle,
+      linkPost: post.linkPost,
+      views: post.views,
+      likes: post.likes,
+      totalComments: post.totalComments,
+      comments: post.getComments().map((comment) => ({
+        commentId: comment.commentId,
+        commentText: removeEmojis(comment.commentText.toLowerCase()),
+        commentDate: comment.commentDate,
+        socialMediaUser: {
+          userId: comment.user.userId,
+          username: comment.user.username,
+          provider: comment.user.provider,
+        },
+      })),
+    };
+  });
+
+  // Simpan ke file JSON atau tampilkan di console
+  fs.writeFileSync(
+    "results/posts_with_comments.json",
+    JSON.stringify(postsArray, null, 2)
+  );
+  console.log("Data berhasil disimpan dalam posts_with_comments.json");
+});
